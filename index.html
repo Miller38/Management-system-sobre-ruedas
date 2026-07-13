@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre Ruedas - Sistema de Gestión</title>
+
+       <!-- Librería para PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+    <!-- ==========================================
+         PANTALLA DE LOGIN MEJORADA
+         ========================================== -->
+    <div id="login-screen" class="screen">
+        <div class="login-container">
+            <div class="login-box">
+                <div class="login-header">
+                    <div class="login-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h2>Sobre Ruedas</h2>
+                    <p>Sistema de Gestión</p>
+                </div>
+                <form id="login-form" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>Correo Electrónico</label>
+                        <input type="email" id="login-email" placeholder="admin@sobreruedas.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="login-password" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn-login">
+                        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                    </button>
+                    <div id="login-error" class="login-error"></div>
+                </form>
+                <div class="login-footer">
+                    <p>Credenciales de prueba</p>
+                    <div class="demo-credentials">
+                        <span>📧 admin@sobreruedas.com</span>
+                        <span>🔑 Admin123!</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         PANTALLA PRINCIPAL
+         ========================================== -->
+    <div id="app-screen" class="screen" style="display:none;">
+
+        <!-- BARRA LATERAL -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-truck"></i>
+                <span>Sobre Ruedas</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-link active" data-section="dashboard">
+                    <i class="fas fa-chart-pie"></i> Dashboard
+                </a>
+                <a href="#" class="nav-link" data-section="clientes">
+                    <i class="fas fa-users"></i> Clientes
+                </a>
+                <a href="#" class="nav-link" data-section="ordenes">
+                    <i class="fas fa-file-invoice"></i> Órdenes
+                </a>
+                <a href="#" class="nav-link" data-section="nueva-orden">
+                    <i class="fas fa-plus-circle"></i> Nueva Orden
+                </a>
+                <a href="#" class="nav-link" data-section="metricas">
+                    <i class="fas fa-chart-bar"></i> Métricas
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="user-name">Admin</span>
+                </div>
+                <button class="btn btn-danger btn-small" onclick="handleLogout()">
+                    <i class="fas fa-sign-out-alt"></i> Salir
+                </button>
+            </div>
+        </div>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <div class="main-content">
+            <header class="main-header">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 id="page-title">Dashboard</h1>
+                <div class="header-actions">
+                    <button class="btn btn-toggle" onclick="toggleTheme()" title="Cambiar tema">
+                        <i class="fas fa-moon" id="theme-icon"></i>
+                    </button>
+                    <button class="btn btn-primary btn-small" onclick="recargarDatos()">
+                        <i class="fas fa-sync"></i> Actualizar
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-area">
+
+                <!-- SECCIÓN: DASHBOARD -->
+                <section id="section-dashboard" class="section active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-users"></i></div>
+                            <div class="stat-info">
+                                <h3 id="stat-clientes">0</h3>
+                                <p>Clientes Activos</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
+                            <div class="stat-info">
+                                <h3 id="stat-ordenes-hoy">0</h3>
+                                <p>Órdenes Hoy</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                            <div class="stat-info">
+                                <h3 id="stat-ingresos">$0</h3>
+                                <p>Ingresos Totales</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                            <div class="stat-info">
+                                <h3 id="stat-pendientes">0</h3>
+                                <p>Pendientes</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-section">
+                        <h3>Órdenes por Estado</h3>
+                        <div class="chart-bars" id="chart-bars"></div>
+                    </div>
+
+                    <div class="recent-orders">
+                        <h3>Últimas Órdenes</h3>
+                        <div class="table-container" id="recent-orders-table"></div>
+                    </div>
+                </section>
+
+                <!-- SECCIÓN: CLIENTES -->
+                <section id="section-clientes" class="section">
+                    <div class="section-header">
+                        <h2>Gestión de Clientes</h2>
+                        <button class="btn btn-primary" onclick="abrirModalCliente()">
+                            <i class="fas fa-plus"></i> Nuevo Cliente
+                        </button>
+                    </div>
+                    <div class="search-bar">
+                        <input type="text" id="search-clientes" placeholder="Buscar cliente..."
+                            oninput="filtrarClientes()">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div class="table-container" id="clientes-table"></div>
+                </section>
+
+                <!-- SECCIÓN: ÓRDENES -->
+                <section id="section-ordenes" class="section">
+                    <div class="section-header">
+                        <h2>Historial de Órdenes</h2>
+                        <div class="header-actions">
+                            <button class="btn btn-pdf-header" onclick="exportarTodasOrdenes()">
+                                <i class="fas fa-file-pdf"></i> Exportar todas
+                            </button>
+                            <button class="btn btn-primary" onclick="irANuevaOrden()">
+                                <i class="fas fa-plus"></i> Nueva Orden
+                            </button>
+                        </div>
+                    </div>
+                    <div class="filter-bar">
+                        <select id="filter-estado" onchange="cargarOrdenes()">
+                            <option value="">Todos los estados</option>
+                            <option value="pendiente">Pendiente</option>
+                            <option value="en_proceso">En Proceso</option>
+                            <option value="completada">Completada</option>
+                            <option value="cancelada">Cancelada</option>
+                        </select>
+                        <input type="date" id="filter-fecha-inicio" onchange="cargarOrdenes()">
+                        <input type="date" id="filter-fecha-fin" onchange="cargarOrdenes()">
+                    </div>
+                    <div class="table-container" id="ordenes-table"></div>
+                </section>
+
+                <!-- SECCIÓN: NUEVA ORDEN -->
+                <section id="section-nueva-orden" class="section">
+                    <div class="section-header">
+                        <h2>Nueva Orden de Servicio</h2>
+                    </div>
+                    <div class="form-container">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Cliente <span class="required">*</span></label>
+                                <select id="orden-cliente" class="form-control" required>
+                                    <option value="">Seleccionar cliente...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Vendedor</label>
+                                <input type="text" id="orden-vendedor" placeholder="Nombre del vendedor"
+                                    class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group full-width">
+                                <label>Descripción del Servicio <span class="required">*</span></label>
+                                <textarea id="orden-descripcion" rows="3" placeholder="Describe el servicio..."
+                                    class="form-control" required></textarea>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Valor <span class="required">*</span></label>
+                                <input type="number" id="orden-valor" placeholder="0" class="form-control"
+                                    oninput="calcularTotalOrden()" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Abono</label>
+                                <input type="number" id="orden-abono" placeholder="0" class="form-control"
+                                    oninput="calcularTotalOrden()">
+                            </div>
+                            <div class="form-group">
+                                <label>Total a Pagar</label>
+                                <input type="text" id="orden-total" value="$0" class="form-control total-field"
+                                    readonly>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn-pdf" onclick="guardarOrden()">
+                                <i class="fas fa-save"></i> Guardar Orden
+                            </button>
+                            <button class="btn btn-secondary" onclick="limpiarFormularioOrden()">
+                                <i class="fas fa-undo"></i> Limpiar
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECCIÓN: MÉTRICAS -->
+                <section id="section-metricas" class="section">
+                    <div class="section-header">
+                        <h2>Métricas Avanzadas</h2>
+                        <button class="btn btn-primary btn-small" onclick="cargarMetricas()">
+                            <i class="fas fa-sync"></i> Actualizar
+                        </button>
+                    </div>
+                    <div id="metricas-content"></div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL: CLIENTE
+         ========================================== -->
+    <div id="modal-cliente" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-cliente-title">Nuevo Cliente</h3>
+                <button class="modal-close" onclick="cerrarModalCliente()">&times;</button>
+            </div>
+            <form id="cliente-form" onsubmit="guardarCliente(event)">
+                <input type="hidden" id="cliente-id">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre <span class="required">*</span></label>
+                        <input type="text" id="cliente-nombre" placeholder="Nombre completo" class="form-control"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label>NIT / CC <span class="required">*</span></label>
+                        <input type="text" id="cliente-nit" placeholder="NIT o Cédula" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Teléfono <span class="required">*</span></label>
+                        <input type="text" id="cliente-telefono" placeholder="Teléfono" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="cliente-email" placeholder="Correo electrónico" class="form-control">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>Dirección</label>
+                        <input type="text" id="cliente-direccion" placeholder="Dirección completa" class="form-control">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar Cliente
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalCliente()">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL: HISTORIAL DEL CLIENTE
+         ========================================== -->
+    <div id="modal-historial" class="modal" style="display:none;">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="historial-title">Historial del Cliente</h3>
+                <button class="modal-close" onclick="cerrarHistorial()">&times;</button>
+            </div>
+            <div id="historial-content"></div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         NOTIFICACIONES
+         ========================================== -->
+    <div id="notifications-container"></div>
+
+    <!-- ==========================================
+         SCRIPTS
+         ========================================== -->
+
+   
+    <script src="config.js"></script>
+     <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+
+    <script src="js/firebase-init.js"></script>
+    <script src="js/script.js"></script>
+
+</body>
+
+</html>
